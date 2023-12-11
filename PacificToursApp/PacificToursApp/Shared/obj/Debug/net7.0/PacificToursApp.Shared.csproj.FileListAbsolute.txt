@@ -1,0 +1,11 @@
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\bin\Debug\net7.0\PacificToursApp.Shared.deps.json
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\bin\Debug\net7.0\PacificToursApp.Shared.dll
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\bin\Debug\net7.0\PacificToursApp.Shared.pdb
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.AssemblyInfoInputs.cache
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.AssemblyInfo.cs
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.csproj.CoreCompileInputs.cache
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.dll
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\refint\PacificToursApp.Shared.dll
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\PacificToursApp.Shared.pdb
+C:\Users\warwick\pacifictours\PacificToursApp\PacificToursApp\Shared\obj\Debug\net7.0\ref\PacificToursApp.Shared.dll

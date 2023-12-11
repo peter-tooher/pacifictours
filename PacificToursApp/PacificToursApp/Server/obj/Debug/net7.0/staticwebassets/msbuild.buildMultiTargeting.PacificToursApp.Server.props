@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\PacificToursApp.Server.props" />
+</Project>
