@@ -1,0 +1,24 @@
+﻿.media {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.media-img-wrapper {
+    flex: 1;
+}
+
+.media-img {
+    max-width: 100%;
+    height: auto;
+}
+
+.media-body {
+    flex: 2;
+    padding-left: 10px;
+}
