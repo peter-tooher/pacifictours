@@ -1,0 +1,57 @@
+﻿<ul class="list-unstyled">
+    @foreach (var tour in Tours)
+    {
+        <li class="media my-3">
+            <div class="media-img-wrapper mr-2">
+                <a href="#">
+                    <img class="media-img" src="@tour.TourImageUrl" alt="@tour.TourName" />
+                </a>
+            </div>
+            <div class="media-body">
+                <a href="#">
+                    <h4 class="mt-0">@tour.TourName</h4>
+                </a>
+                <p>@tour.TourDescription</p>
+                <p> <strong>Length:</strong> @tour.TourLength days </p>
+                <p> <strong>Price:</strong> £@tour.TourPrice </p>
+                <p> <strong>Spaces Available:</strong> @tour.TourAvailableSpaces </p>
+            </div>
+        </li>
+    }
+</ul>
+
+@code {
+    private static List<Tour> Tours = new List<Tour>
+    {
+       new Tour
+       {
+           TourId = 1,
+           TourName = "Real Britain",
+           TourDescription = "Discover the heart of England, Wales, and Scotland",
+           TourImageUrl = "https://www.thewowstyle.com/wp-content/uploads/2015/02/1653100london.jpg",
+           TourLength = 6,
+           TourPrice = 1200.00m,
+           TourAvailableSpaces = 30,
+       },
+       new Tour
+       {
+           TourId = 2,
+           TourName = "Britain and Ireland Explorer",
+           TourDescription = "Venture across England, Wales, Scotland, and Ireland",
+           TourImageUrl = "https://static.standard.co.uk/s3fs-public/thumbnails/image/2017/07/10/10/shutterstock-521968378.jpg?crop=8:5,smart&quality=75&auto=webp&width=1024",
+           TourLength = 16,
+           TourPrice = 2000.00m,
+           TourAvailableSpaces = 40,
+       },
+       new Tour
+       {
+           TourId = 3,
+           TourName = "Best of Britain",
+           TourDescription = "Visit the tourist attractions throughout England, Wales, and Scotland",
+           TourImageUrl = "https://images.squarespace-cdn.com/content/v1/6494678b67b42e6fd1a6de8b/1688379281318-RF4T4T16E07G261E5XPG/UK21-210+Full+moon+setting+over+Stonehenge%2C+Wiltshire.jpg?format=2500w",
+           TourLength = 12,
+           TourPrice = 2900.00m,
+           TourAvailableSpaces = 30,
+       }
+    };
+}
