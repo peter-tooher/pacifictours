@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 
 namespace PacificToursApp.Server.Controllers
 {
@@ -43,7 +44,7 @@ namespace PacificToursApp.Server.Controllers
         };
 
         [HttpGet]
-        public async Task<IActionResult> GetTour()
+        public async Task<ActionResult<List<Tour>>> GetTour()
         {
             return(Ok(Tours));
         }
