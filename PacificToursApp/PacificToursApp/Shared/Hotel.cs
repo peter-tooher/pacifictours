@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net.Security;
 using System.Text;
@@ -13,16 +14,29 @@ namespace PacificToursApp.Shared
         public string HotelName { get; set; } = string.Empty;
         public string HotelDescription { get; set; } = string.Empty;
         public string HotelImageUrl { get; set; } = string.Empty;
-        
-        public required Suite SingleSuite { get; set; }
-        public required Suite DoubleSuite { get; set; }
-        public required Suite FamilySuite { get; set; }
+        public required SingleSuite SingleSuite { get; set; }
+        public required DoubleSuite DoubleSuite { get; set; }    
+        public required FamilySuite FamilySuite { get; set; }
     }
-
-    public class Suite
-    { 
-        public int SuiteId { get; set; }
-        public decimal SuitePrice { get; set; }
-        public int SuiteAvailableSpaces { get; set; }
+    public class SingleSuite
+    {
+        public int SingleSuiteId { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SingleSuitePrice { get; set; }
+        public int SingleSuiteAvailableSpaces { get; set; }
+    }
+    public class DoubleSuite
+    {
+        public int DoubleSuiteId { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal DoubleSuitePrice { get; set; }
+        public int DoubleSuiteAvailableSpaces { get; set; }
+    }
+    public class FamilySuite
+    {
+        public int FamilySuiteId { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FamilySuitePrice { get; set; }
+        public int FamilySuiteAvailableSpaces { get; set; }
     }
 }
