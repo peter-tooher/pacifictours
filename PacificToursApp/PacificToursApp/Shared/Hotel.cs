@@ -14,9 +14,12 @@ namespace PacificToursApp.Shared
         public string HotelName { get; set; } = string.Empty;
         public string HotelDescription { get; set; } = string.Empty;
         public string HotelImageUrl { get; set; } = string.Empty;
-        public required SingleSuite SingleSuite { get; set; }
-        public required DoubleSuite DoubleSuite { get; set; }    
-        public required FamilySuite FamilySuite { get; set; }
+        public SingleSuite SingleSuite { get; set; }
+        public DoubleSuite DoubleSuite { get; set; }    
+        public FamilySuite FamilySuite { get; set; }
+        public int SingleSuiteId { get; set; }
+        public int DoubleSuiteId { get; set; }
+        public int FamilySuiteId { get; set; }
     }
     public class SingleSuite
     {
