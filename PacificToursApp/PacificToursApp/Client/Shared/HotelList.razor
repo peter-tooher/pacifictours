@@ -27,10 +27,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<List<Hotel>>("api/Hotel");
-        if (result != null)
+        var result = await Http.GetFromJsonAsync<ServiceResponse<List<Hotel>>>("api/Hotel");
+        if (result != null && result.Data != null)
         {
-            Hotels = result;
+            Hotels = result.Data;
         }
     }
 }
