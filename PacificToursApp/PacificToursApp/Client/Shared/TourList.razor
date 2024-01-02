@@ -1,7 +1,13 @@
-﻿@inject HttpClient Http
+﻿@inject ITourService TourService
 
+@if (TourService.Tours == null || TourService.Tours.Count == 0)
+{
+    <span>Loading Tours...</span>
+}
+else
+{
 <ul class="list-unstyled">
-    @foreach (var tour in Tours)
+    @foreach (var tour in TourService.Tours)
     {
         <li class="media my-3">
             <div class="media-img-wrapper mr-2">
@@ -19,18 +25,13 @@
                 <p> <strong>Spaces Available:</strong> @tour.TourAvailableSpaces </p>
             </div>
         </li>
-    }
+        }
 </ul>
+}
 
 @code {
-    private static List<Tour> Tours = new List<Tour>();
-
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<ServiceResponse<List<Tour>>>("api/Tour");
-        if (result != null && result.Data != null)
-        {
-            Tours = result.Data;
-        }
+       await TourService.GetTours();
     }
 }
