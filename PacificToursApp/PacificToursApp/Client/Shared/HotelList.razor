@@ -1,36 +1,39 @@
-﻿@inject HttpClient Http
+﻿@inject IHotelService HotelService
 
-<ul class="list-unstyled">
-    @foreach (var hotel in Hotels)
-    {
-        <li class="media my-3">
-            <div class="media-img-wrapper mr-2">
-                <a href="#">
-                    <img class="media-img" src="@hotel.HotelImageUrl" alt="@hotel.HotelName" />
-                </a>
-            </div>
-            <div class="media-body">
-                <a href="#">
-                    <h4 class="mt-0">@hotel.HotelName</h4>
-                </a>
-                <p>@hotel.HotelDescription</p>
-                <p> <strong>Single Suite:</strong> £@hotel.SingleSuite.SingleSuitePrice <strong>Spaces Available:</strong> @hotel.SingleSuite.SingleSuiteAvailableSpaces </p>
-                <p> <strong>Double Suite:</strong> £@hotel.DoubleSuite.DoubleSuitePrice <strong>Spaces Available:</strong> @hotel.DoubleSuite.DoubleSuiteAvailableSpaces </p>
-                <p> <strong>Family Suite:</strong> £@hotel.FamilySuite.FamilySuitePrice <strong>Spaces Available:</strong> @hotel.FamilySuite.FamilySuiteAvailableSpaces </p>
-            </div>
-        </li>
-    }
-</ul>
+@if (HotelService.Hotels == null || HotelService.Hotels.Count == 0)
+{
+    <span>Loading Hotels...</span>
+}
+else
+{
+    <ul class="list-unstyled">
+        @foreach (var hotel in HotelService.Hotels)
+        {
+            <li class="media my-3">
+                <div class="media-img-wrapper mr-2">
+                    <a href="#">
+                        <img class="media-img" src="@hotel.HotelImageUrl" alt="@hotel.HotelName" />
+                    </a>
+                </div>
+                <div class="media-body">
+                    <a href="#">
+                        <h4 class="mt-0">@hotel.HotelName</h4>
+                    </a>
+                    <p>@hotel.HotelDescription</p>
+                    <p> <strong>Single Suite:</strong> £@hotel.SingleSuite.SingleSuitePrice <strong>Spaces Available:</strong> @hotel.SingleSuite.SingleSuiteAvailableSpaces </p>
+                    <p> <strong>Double Suite:</strong> £@hotel.DoubleSuite.DoubleSuitePrice <strong>Spaces Available:</strong> @hotel.DoubleSuite.DoubleSuiteAvailableSpaces </p>
+                    <p> <strong>Family Suite:</strong> £@hotel.FamilySuite.FamilySuitePrice <strong>Spaces Available:</strong> @hotel.FamilySuite.FamilySuiteAvailableSpaces </p>
+                </div>
+            </li>
+        }
+    </ul>
+}
 
 @code {
     private static List<Hotel> Hotels = new List<Hotel>();
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<ServiceResponse<List<Hotel>>>("api/Hotel");
-        if (result != null && result.Data != null)
-        {
-            Hotels = result.Data;
-        }
+        await HotelService.GetHotels();
     }
 }
