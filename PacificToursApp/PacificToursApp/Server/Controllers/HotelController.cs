@@ -7,17 +7,17 @@ namespace PacificToursApp.Server.Controllers
     [ApiController]
     public class HotelController : ControllerBase
     {
-        private readonly DataContext _context;
-        public HotelController(DataContext context)
+        private readonly IHotelService _hotelService;
+        public HotelController(IHotelService hotelService)
         {
-            _context = context;
+            _hotelService = hotelService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
+        public async Task<ActionResult<ServiceResponse<IEnumerable<Hotel>>>> GetHotels()
         {
-            var hotels = await _context.Hotels.Include(h => h.SingleSuite).Include(h => h.DoubleSuite).Include(h => h.FamilySuite).ToListAsync();
-            return (Ok(hotels));
+            var result = await _hotelService.GetHotelsAsync();
+            return (Ok(result));
         }
     }
 }
