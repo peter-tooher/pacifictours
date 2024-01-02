@@ -1,6 +1,8 @@
 global using PacificToursApp.Shared;
 global using Microsoft.EntityFrameworkCore;
 global using PacificToursApp.Server.Data;
+global using PacificToursApp.Server.Services.HotelService;
+global using PacificToursApp.Server.Services.TourService;
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,9 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IHotelService, HotelService>();
+builder.Services.AddScoped<ITourService, TourService>();
 
 var app = builder.Build();
 
