@@ -1,7 +1,7 @@
 global using PacificToursApp.Shared;
 global using Microsoft.EntityFrameworkCore;
+global using PacificToursApp.Server.Data;
 using Microsoft.AspNetCore.ResponseCompression;
-using PacificToursApp.Server.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
