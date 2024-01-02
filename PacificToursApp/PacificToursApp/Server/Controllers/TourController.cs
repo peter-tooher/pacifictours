@@ -9,18 +9,18 @@ namespace PacificToursApp.Server.Controllers
     public class TourController : ControllerBase
 
     {
-        private readonly DataContext _context;
+        private readonly ITourService _tourService;
 
-        public TourController(DataContext context)
+        public TourController(ITourService tourService)
         {
-            _context = context;
+            _tourService = tourService;
         }   
 
         [HttpGet]
-        public async Task<ActionResult<List<Tour>>> GetTour()
+        public async Task<ActionResult<ServiceResponse<List<Tour>>>> GetTours()
         {
-            var tours = await _context.Tours.ToListAsync();
-            return(Ok(tours));
+            var result = await _tourService.GetToursAsync();
+            return(Ok(result));
         }
     }
 }
