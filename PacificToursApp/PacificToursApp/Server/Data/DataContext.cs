@@ -244,5 +244,6 @@ namespace PacificToursApp.Server.Data
         public DbSet<SingleSuite> SingleSuites { get; set; }
         public DbSet<DoubleSuite> DoubleSuites { get; set; }
         public DbSet<FamilySuite> FamilySuites { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
