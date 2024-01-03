@@ -9,9 +9,9 @@ namespace PacificToursApp.Server.Services.AuthService
         {
             _context = context;
         }
-        public async Task<ServiceResponse<int>> Register(User user, string password)
+        public async Task<ServiceResponse<int>> Register(UserRegister request)
         {
-            if (await UserExists(user.UserName))
+            if (await UserExists(request.UserName))
             {
                 return new ServiceResponse<int>
                 {
@@ -20,10 +20,19 @@ namespace PacificToursApp.Server.Services.AuthService
                 };
             }
 
-            CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
+            User user = new User
+            {
+                UserName = request.UserName,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                UserEmail = request.Email,
+                PassportNumber = request.PassportNumber,
+                ContactNumber = request.ContactNumber,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
