@@ -3,6 +3,7 @@ global using Microsoft.EntityFrameworkCore;
 global using PacificToursApp.Server.Data;
 global using PacificToursApp.Server.Services.HotelService;
 global using PacificToursApp.Server.Services.TourService;
+global using PacificToursApp.Server.Services.AuthService;   
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<ITourService, TourService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
