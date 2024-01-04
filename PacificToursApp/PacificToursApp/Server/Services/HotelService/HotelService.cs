@@ -14,7 +14,7 @@ namespace PacificToursApp.Server.Services.HotelService
         {
             var response = new ServiceResponse<List<Hotel>>
             {
-                Data = await _context.Hotels.Include(h => h.SingleSuite).Include(h => h.DoubleSuite).Include(h => h.FamilySuite).ToListAsync()
+                Data = await _context.Hotels.ToListAsync()
             };
 
             return response;
