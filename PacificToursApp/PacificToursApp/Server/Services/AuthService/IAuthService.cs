@@ -6,5 +6,6 @@
         Task<bool> UserExists(string username);
 
         Task<ServiceResponse<string>> Login(string username, string password);
+        Task<ServiceResponse<bool>> ChangePassword(int UserId, string newPassword);
     }
 }

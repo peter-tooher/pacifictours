@@ -119,5 +119,33 @@ namespace PacificToursApp.Server.Services.AuthService
 
             return jwt;
         }
+
+        public async Task<ServiceResponse<bool>> ChangePassword(int UserId, string newPassword)
+        {
+            var user = await _context.Users.FindAsync(UserId);
+
+            if (user == null)
+            {
+                return new ServiceResponse<bool>
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }  
+            
+            CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+
+            await _context.SaveChangesAsync();
+
+            return new ServiceResponse<bool>
+            {
+                Data = true,
+                Message = "Password changed successfully."
+            };
+        }
+        
     }
 }
