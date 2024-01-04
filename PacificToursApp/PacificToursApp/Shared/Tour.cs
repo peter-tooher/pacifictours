@@ -16,7 +16,5 @@ namespace PacificToursApp.Shared
         public int TourLength { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal TourPrice { get; set; }
-
-        public int TourAvailableSpaces { get; set; }
     }
 }
