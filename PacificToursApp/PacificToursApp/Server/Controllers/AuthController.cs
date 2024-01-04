@@ -25,5 +25,17 @@ namespace PacificToursApp.Server.Controllers
             }
             return Ok(response);
         }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<ServiceResponse<string>>> Login([FromBody]UserLogin request)
+        {
+            var response = await _authSevice.Login(request.UserName, request.Password);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }
