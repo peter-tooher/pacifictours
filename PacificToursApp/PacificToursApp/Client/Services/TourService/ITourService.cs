@@ -6,5 +6,6 @@ namespace PacificToursApp.Client.Services.TourService
     {
         List<Tour> Tours { get; set; }
         Task GetTours();
+        Task<ServiceResponse<Tour>> GetTourById(int tourId);
     }
 }

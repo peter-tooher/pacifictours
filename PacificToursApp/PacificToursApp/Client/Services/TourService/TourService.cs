@@ -10,6 +10,12 @@
 
         public List<Tour> Tours { get; set; } = new List<Tour>();
 
+        public async Task<ServiceResponse<Tour>> GetTourById(int tourId)
+        {
+            var result = await _http.GetFromJsonAsync<ServiceResponse<Tour>>($"api/tour/{tourId}");
+            return result;
+        }
+
         public async Task GetTours()
         {
             var result = await _http.GetFromJsonAsync<ServiceResponse<List<Tour>>>("api/tour");
