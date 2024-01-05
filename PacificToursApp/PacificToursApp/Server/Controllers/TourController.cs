@@ -22,5 +22,12 @@ namespace PacificToursApp.Server.Controllers
             var result = await _tourService.GetToursAsync();
             return(Ok(result));
         }
+
+        [HttpGet("{tourId}")]
+        public async Task<ActionResult<ServiceResponse<Tour>>> GetTourById([FromRoute] int tourId)
+        {
+            var result = await _tourService.GetTourByIdAsync(tourId);
+            return (Ok(result));
+        }
     }
 }
