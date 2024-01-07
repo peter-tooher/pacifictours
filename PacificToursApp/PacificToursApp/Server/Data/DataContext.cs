@@ -115,9 +115,23 @@ namespace PacificToursApp.Server.Data
             modelBuilder.Entity<User>()
             .HasKey(u => u.UserId);
 
+            modelBuilder.Entity<HotelBookings>()
+            .HasKey(hb => hb.BookingId);
+
+            modelBuilder.Entity<HotelBookings>()
+                .HasOne(hb => hb.user)
+                .WithMany()
+                .HasForeignKey(hb => hb.UserId);
+
+            modelBuilder.Entity<HotelBookings>()
+                .HasOne(hb => hb.hotel)
+                .WithMany()
+                .HasForeignKey(hb => hb.HotelId);
+
         }
         public DbSet<Tour> Tours { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<HotelBookings> HotelBookings { get; set; }
     }
 }
