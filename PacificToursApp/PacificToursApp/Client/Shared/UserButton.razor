@@ -13,6 +13,10 @@
             <Authorized>
                 <a href="profile" class="dropdown-item">Profile</a>
                 <hr />
+                <button class="dropdown-item" @onclick="GoToTourBookings">Tours</button>
+                <button class="dropdown-item" @onclick="GoToHotelBookings">Hotels</button>
+                <button class="dropdown-item" @onclick="GoToPackageBookings">Packages</button>
+                <AdminMenu />
                 <button class="dropdown-item" @onclick="Logout">Logout</button>
             </Authorized>
             <NotAuthorized>
@@ -39,10 +43,25 @@
         showUserMenu = false;
     }
 
-private async Task Logout()
+    private async Task Logout()
     {
         await LocalStorage.RemoveItemAsync("authToken");
         await AuthenticationStateProvider.GetAuthenticationStateAsync();
         NavigationManager.NavigateTo("");
+    }
+            
+    private void GoToTourBookings()
+    {
+        NavigationManager.NavigateTo("/TourBookingConfirmation");
+    }
+
+    private void GoToHotelBookings()
+    {
+        NavigationManager.NavigateTo("/HotelBookingConfirmation");
+    }
+
+    private void GoToPackageBookings()
+    {
+        NavigationManager.NavigateTo("packages/PackageBookingConfirmation");
     }
 }

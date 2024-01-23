@@ -1,0 +1,145 @@
+﻿@page "/packages/PackageBookingConfirmation"
+@using System.Security.Claims
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using PacificToursApp.Shared
+
+@code {
+    private string ModifyBookingMessage = string.Empty;
+    private string PayRemainingFeeMessage = string.Empty;
+    private string CancelBookingMessage = string.Empty;
+
+    private IEnumerable<PackageBookings> packageBookings;
+
+    int userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+            packageBookings = await HttpClient.GetFromJsonAsync<IEnumerable<PackageBookings>>($"api/PackageBookings/ByUser/{userId}");
+        }
+    }
+    
+    private async Task PayRemainingFee(int bookingId)
+    {
+        var response = await HttpClient.PostAsJsonAsync($"api/PackageBookings/Pay/{bookingId}", bookingId);
+        if (response.IsSuccessStatusCode)
+        {
+            PayRemainingFeeMessage = "Payment successful.";
+            var booking = packageBookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking != null)
+            {
+                booking.Paid = true;
+            }
+        }
+        else
+        {
+            PayRemainingFeeMessage = "Oops! Something went wrong. Try again.";
+        }
+    }
+
+    private async Task CancelBooking(int bookingId)
+    {
+        var response = await HttpClient.DeleteAsync($"api/PackageBookings/{bookingId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var refundAmount = await response.Content.ReadFromJsonAsync<decimal>();
+            CancelBookingMessage = ($"Booking cancelled successfully. Refund amount: £{refundAmount}");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            CancelBookingMessage = ($"Failed to cancel booking. Try again.");
+        }
+    }
+
+    private async Task ModifyBooking(PackageBookings modifiedBooking)
+    {
+        var response = await HttpClient.PutAsJsonAsync($"api/PackageBookings/{modifiedBooking.BookingId}", modifiedBooking);
+        if (response.IsSuccessStatusCode)
+        {
+            ModifyBookingMessage = "Booking modified successfully.";
+            var booking = packageBookings.FirstOrDefault(b => b.BookingId == modifiedBooking.BookingId);
+            if (booking != null)
+            {
+                booking.TourCheckIn = modifiedBooking.TourCheckIn;
+                booking.HotelCheckIn = modifiedBooking.HotelCheckIn;
+                booking.HotelCheckOut = modifiedBooking.HotelCheckOut;
+                booking.TourPaymentDue = modifiedBooking.TourPaymentDue;
+                booking.HotelPaymentDue = modifiedBooking.HotelPaymentDue;
+                booking.SuiteOption = modifiedBooking.SuiteOption;
+                booking.TourPrice += booking.TourPrice * 0.05m; 
+                booking.HotelPrice += booking.HotelPrice * 0.05m; 
+                booking.TotalPrice = booking.TourPrice + booking.HotelPrice;
+            }
+        }
+        else
+        {
+            ModifyBookingMessage = "Oops! Something went wrong. Try again.";
+        }
+    }
+}
+
+@if (packageBookings == null)
+{
+    <span>Loading booking...</span>
+}
+else
+{
+    @foreach (var packageBooking in packageBookings)
+    {
+        <div>
+            <h2>Package Booking Confirmation</h2>
+            <p>The remaining amount needs to be paid 28 days before the commencement of the booking, otherwise the deposit is forfeited.</p>
+            <p>Bookings can be modified up to 14 days before the booking subject to a 5% surcharge and assuming changes can be accommodated.</p>
+            <p>Cancellations may be made 5 days prior to the booking and a full refund will be returned. If it is made within 5 days, a refund will be returned subject to a £50 charge.</p>
+            <p><strong>Booking ID:</strong> @packageBooking.BookingId</p>
+            <p><strong>User ID:</strong> @packageBooking.UserId</p>
+            <p><strong>Tour ID:</strong> @packageBooking.TourId</p>
+            <p><strong>Tour Name:</strong> @packageBooking.TourName</p>
+            <p><strong>Tour Check In Date:</strong> @packageBooking.TourCheckIn.ToShortDateString()</p>
+            <p><strong>Tour Deposit:</strong> @packageBooking.TourDeposit</p>
+            <p><strong>Tour Price:</strong> @packageBooking.TourPrice</p>
+            <p><strong>Tour Payment Due:</strong> @packageBooking.TourPaymentDue.ToShortDateString()</p>
+            <p><strong>Hotel ID:</strong> @packageBooking.HotelId</p>
+            <p><strong>Hotel Name:</strong> @packageBooking.HotelName</p>
+            <p><strong>Suite Option:</strong> @packageBooking.SuiteOption</p>
+            <p><strong>Hotel Check In Date:</strong> @packageBooking.HotelCheckIn.ToShortDateString()</p>
+            <p><strong>Hotel Check Out Date:</strong> @packageBooking.HotelCheckOut.ToShortDateString()</p>
+            <p><strong>Hotel Deposit:</strong> @packageBooking.HotelDeposit</p>
+            <p><strong>Hotel Price:</strong> @packageBooking.HotelPrice</p>
+            <p><strong>Hotel Payment Due:</strong> @packageBooking.HotelPaymentDue.ToShortDateString()</p>
+            <p><strong>Total Price:</strong> @packageBooking.TotalPrice</p>
+            <p><strong>Paid:</strong> @packageBooking.Paid</p>
+            <input type="date" @bind="packageBooking.HotelCheckIn" min="@DateTime.Now.ToShortDateString()" max="@packageBooking.HotelCheckOut.ToShortDateString()" />
+            <input type="date" @bind="packageBooking.HotelCheckOut" min="@DateTime.Now.ToShortDateString()" max="@DateTime.Now.AddYears(1).ToShortDateString()" />
+            <input type="date" @bind="packageBooking.TourCheckIn" min="@DateTime.Now.ToShortDateString()" />
+            <button @onclick="() => PayRemainingFee(packageBooking.BookingId)">
+                Pay Now
+                @if (!string.IsNullOrEmpty(PayRemainingFeeMessage))
+                {
+                    <p>@PayRemainingFeeMessage</p>
+                }
+                </button>
+            <button @onclick="() => ModifyBooking(packageBooking)">
+                Modify Booking
+                @if (!string.IsNullOrEmpty(ModifyBookingMessage))
+                                {
+                                    <p>@ModifyBookingMessage</p>
+                                }
+            </button>
+            <button @onclick="() => CancelBooking(packageBooking.BookingId)">
+                Cancel Booking
+                @if (!string.IsNullOrEmpty(CancelBookingMessage))
+                {
+                    <p>@CancelBookingMessage</p>
+                }
+            </button>
+        </div>
+    }
+}

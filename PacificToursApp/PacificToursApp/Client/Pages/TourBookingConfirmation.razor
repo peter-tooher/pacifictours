@@ -1,0 +1,127 @@
+﻿ @page "/TourBookingConfirmation"
+@using System.Security.Claims
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (tourBookings == null)
+{
+    <span>Loading bookings...</span>
+}
+else
+{
+    foreach (var booking in tourBookings)
+    {
+        <div>
+            <h2>Booking Confirmation</h2>
+            <p>The remaining amount needs to be paid 28 days before the commencement of the booking, otherwise the deposit is forfeited.</p>
+            <p>Bookings can be modified up to 14 days before the booking subject to a 5% surcharge and assuming changes can be accommodated.</p>
+            <p>Cancellations may be made 5 days prior to the booking and a full refund will be returned. If it is made within 5 days, a refund will be returned subject to a £50 charge.</p>
+            <p><strong>Booking ID:</strong> @booking.BookingId</p>
+            <p><strong>User ID:</strong> @booking.UserId</p>
+            <p><strong>Hotel ID:</strong> @booking.TourId</p>
+            <p><strong>Hotel Name:</strong> @booking.TourName</p>
+            <p><strong>Check In Date:</strong> @booking.CheckIn.ToShortDateString()</p>
+            <p><strong>Deposit:</strong> @booking.Deposit</p>
+            <p><strong>Price:</strong> @booking.Price</p>
+            <p><strong>Payment Due Date:</strong> @booking.PaymentDue.ToShortDateString()</p>
+            <p><strong>Payment Made:</strong> @booking.Paid</p>
+            <input type="date" @bind="booking.CheckIn" min="@DateTime.Now.ToShortDateString()" />
+            <button @onclick="() => ModifyBooking(booking.BookingId)">
+                Modify Booking
+                @if (!string.IsNullOrEmpty(ModifyBookingMessage))
+                {
+                    <p>@ModifyBookingMessage</p>
+                }
+            </button>
+            <button @onclick="() => PayRemainingFee(booking.BookingId)">
+                Pay Now
+                @if (!string.IsNullOrEmpty(PayRemainingFeeMessage))
+                {
+                    <p>@PayRemainingFeeMessage</p>
+                }
+            </button>
+            <button @onclick="() => CancelBooking(booking.BookingId)">
+                Cancel Booking
+                @if (!string.IsNullOrEmpty(CancelBookingMessage))
+                {
+                    <p>@CancelBookingMessage</p>
+                }
+            </button>
+        </div>
+    }
+}
+
+@code {
+    private string ModifyBookingMessage = string.Empty;
+    private string PayRemainingFeeMessage = string.Empty;
+    private string CancelBookingMessage = string.Empty;
+
+    private List<TourBookings> tourBookings;
+
+    int userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = int.Parse(user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value);
+
+        if (userId != 0)
+        {
+            tourBookings = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByUser/{userId}");
+        }
+    }
+
+    private async Task ModifyBooking(int bookingId)
+    {
+        var booking = tourBookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking != null)
+        {
+            var bookings = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByTour/{booking.TourId}");
+
+            var response = await HttpClient.PutAsJsonAsync($"api/TourBookings/{bookingId}", booking);
+            if (response.IsSuccessStatusCode)
+            {
+                tourBookings = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByTour/{booking.UserId}");
+            }
+            else
+            {
+                ModifyBookingMessage = "Oops! Something went wrong. Try again.";
+            }
+        }
+    }
+
+    private async Task PayRemainingFee(int bookingId)
+    {
+        var response = await HttpClient.PostAsJsonAsync($"api/TourBookings/Pay/{bookingId}", bookingId);
+        if (response.IsSuccessStatusCode)
+        {
+            PayRemainingFeeMessage = "Payment successful.";
+            var booking = tourBookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking != null)
+            {
+                booking.Paid = true;
+            }
+            tourBookings = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByUser/{userId}");
+        }
+        else
+        {
+            PayRemainingFeeMessage = "Oops! Something went wrong. Try again.";
+        }
+    }
+
+    private async Task CancelBooking(int bookingId)
+    {
+        var response = await HttpClient.DeleteAsync($"api/TourBookings/{bookingId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var refundAmount = await response.Content.ReadFromJsonAsync<decimal>();
+            CancelBookingMessage = ($"Booking cancelled successfully. Refund amount: £{refundAmount}");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            CancelBookingMessage = ($"Failed to cancel booking. Try again.");
+        }
+    }
+}

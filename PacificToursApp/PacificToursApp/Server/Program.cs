@@ -3,7 +3,7 @@ global using Microsoft.EntityFrameworkCore;
 global using PacificToursApp.Server.Data;
 global using PacificToursApp.Server.Services.HotelService;
 global using PacificToursApp.Server.Services.TourService;
-global using PacificToursApp.Server.Services.AuthService;   
+global using PacificToursApp.Server.Services.AuthService;  
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +23,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHostedService<BookingCleanupService>();
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

@@ -1,0 +1,133 @@
+﻿@page "/hotels/{Id:int}"
+@using System.Security.Claims
+@inject HttpClient HttpClient
+@inject IHotelService HotelService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (hotel == null)
+{
+    <span>@message</span>
+}
+else
+{
+    <div class="media">
+        <div class="media-img-wrapper mr-2">
+            <img class="media-img" src="@hotel.HotelImageUrl" alt="@hotel.HotelName" />
+        </div>
+        <div class="media-body">
+            <h2 class="mb-0">@hotel.HotelName</h2>
+            <p>@hotel.HotelDescription</p>
+            <p> <strong>Single Suite:</strong> £@hotel.SingleSuitePrice per night </p>
+            <p> <strong>Double Suite:</strong> £@hotel.DoubleSuitePrice per night </p>
+            <p> <strong>Family Suite:</strong> £@hotel.FamilySuitePrice per night </p>
+
+            <select @bind="selectedSuite">
+                <option value="Single">Single Suite</option>
+                <option value="Double">Double Suite</option>
+                <option value="Family">Family Suite</option>
+            </select>
+
+            <input type="date" min="@DateTime.Now.AddDays(29).ToString("yyyy-MM-dd")" @bind="checkInDate" />
+            <input type="date" min="@checkInDate.AddDays(1).ToString("yyyy-MM-dd")" @bind="checkOutDate" />
+
+            @if(isLoggedIn)
+            { 
+                <button class="btn btn-primary" @onclick="ConfirmBooking">
+                <i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Confirm Booking
+                </button>
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <p>@message</p>
+                }
+                <p>By clicking "Confirm Booking", you agree to pay a deposit of 20%.</p>
+      
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private Hotel hotel = null;
+    private string message = string.Empty;
+    private string selectedSuite = "Single";
+    private DateTime checkInDate = DateTime.Now.Date;
+    private DateTime checkOutDate = DateTime.Now.Date.AddDays(1);
+    private DateTime paymentDueDate;
+
+    bool isLoggedIn = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await HotelService.GetHotels();  
+        var result = await HotelService.GetHotelById(Id);
+
+        if(!result.Success)
+        {
+            message = result.Message;
+        }
+        else
+        {
+            hotel = result.Data;
+        }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity.IsAuthenticated;
+    }
+
+    private async void ConfirmBooking()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        decimal price = selectedSuite switch
+        {
+            "Single" => hotel.SingleSuitePrice,
+            "Double" => hotel.DoubleSuitePrice,
+            "Family" => hotel.FamilySuitePrice,
+            _ => 0
+        };
+
+        int numberOfDays = (checkOutDate - checkInDate).Days;
+        decimal totalPrice = price * numberOfDays;
+        decimal deposit = totalPrice * 0.2m;
+        decimal remainingBalance = totalPrice - deposit;
+        paymentDueDate = checkInDate.AddDays(-28);
+
+        var bookings = await HttpClient.GetFromJsonAsync<List<HotelBookings>>($"api/Bookings/{hotel.HotelId}/{selectedSuite}");
+        if (bookings.Count(b => b.CheckIn < checkOutDate && b.CheckOut > checkInDate)>=20)
+        {
+            message = "The selected suite is booked for the chosen dates. Please select another date.";
+            return;
+        }
+
+        if (checkInDate < DateTime.Now.AddDays(29))
+        {
+            message = "You can only book a tour that is 29 days in the future or more.";
+            return;
+        }
+
+        var booking = new HotelBookings
+            {
+            UserId = int.Parse(authState.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value),
+            HotelId = hotel.HotelId,
+            HotelName = hotel.HotelName,
+            SuiteOption = selectedSuite,
+            CheckIn = checkInDate,
+            CheckOut = checkOutDate,
+            Deposit = deposit,
+            Price = remainingBalance,
+            PaymentDue = paymentDueDate,
+            Paid = false, 
+        };
+
+        var response = await HttpClient.PostAsJsonAsync("api/Bookings", booking);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/HotelBookingConfirmation/");
+        }
+    }
+}

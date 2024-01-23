@@ -3,6 +3,7 @@ global using System.Net.Http.Json;
 global using PacificToursApp.Client.Services.TourService;
 global using PacificToursApp.Client.Services.HotelService;
 global using PacificToursApp.Client.Services.AuthService;
+global using PacificToursApp.Client.Services;
 global using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -18,6 +19,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<BookingService>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 

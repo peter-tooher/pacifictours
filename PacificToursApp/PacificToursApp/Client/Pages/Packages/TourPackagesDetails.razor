@@ -1,7 +1,8 @@
-﻿@page "/tours/{Id:int}"
+﻿@page "/packages/tourpackagesdetails/{Id:int}"
 @using System.Security.Claims
 @inject HttpClient HttpClient
 @inject ITourService TourService
+@inject BookingService BookingService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -23,7 +24,7 @@ else
 
             @if (isLoggedIn)
             {
-                <button class="btn btn-primary" @onclick="ConfirmTourBooking">
+                <button class="btn btn-primary" @onclick="HandleFormSubmit">
                     <i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Confirm Booking
                 </button>
                 @if (!string.IsNullOrEmpty(message))
@@ -64,50 +65,48 @@ else
         isLoggedIn = authState.User.Identity.IsAuthenticated;
     }
 
-    
-    private async void ConfirmTourBooking()
+
+    private async Task HandleFormSubmit()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        decimal price = tour.TourPrice;
-        decimal totalPrice = tour.TourPrice;
-        decimal deposit = totalPrice * 0.2m;
-        decimal remainingBalance = totalPrice - deposit;
-        paymentDueDate = checkInDate.AddDays(-28);
-
-        var bookingsOnDate = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByTourAndDate/{tour.TourId}/{checkInDate:yyyy-MM-dd}");
-        int maxSpaces = (tour.TourName == "Real Britain" || tour.TourName == "Best of Britain") ? 30 : 40;
-
-        if (bookingsOnDate.Count >= maxSpaces)
+        if (user.Identity.IsAuthenticated)
         {
-            message = "Sorry, there are no available spaces for this tour on the selected date.";
-            return;
-        }
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (checkInDate < DateTime.Now.AddDays(29))
-        {
-            message = "You can only book a tour that is 29 days in the future or more.";
-            return;
-        }
+            BookingService.CurrentBooking.UserId = int.Parse(userId);
 
-        var booking = new TourBookings
+            decimal price = tour.TourPrice;
+            decimal totalPrice = tour.TourPrice;
+            decimal deposit = totalPrice * 0.2m;
+            decimal remainingBalance = totalPrice - deposit;
+            paymentDueDate = checkInDate.AddDays(-28);
+
+            var bookingsOnDate = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByTourAndDate/{tour.TourId}/{checkInDate:yyyy-MM-dd}");
+            int maxSpaces = (tour.TourName == "Real Britain" || tour.TourName == "Best of Britain") ? 30 : 40;
+
+            if (bookingsOnDate.Count >= maxSpaces)
             {
-                UserId = int.Parse(authState.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value),
-                TourId = tour.TourId,
-                TourName = tour.TourName,
-                CheckIn = checkInDate,
-                Deposit = deposit,
-                Price = remainingBalance,
-                PaymentDue = paymentDueDate,
-                Paid = false,
-        };
+                 message = "Sorry, there are no available spaces for this tour on the selected date.";
+                 return;
+            }
 
-        var response = await HttpClient.PostAsJsonAsync("api/TourBookings", booking);
+            if (checkInDate < DateTime.Now.AddDays(29))
+            {
+                message = "You can only book a tour that is 29 days in the future or more.";
+                return;
+            }
 
-        if (response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo($"/TourBookingConfirmation/");
+            BookingService.UpdateTourOptions(tour.TourId, tour.TourName, checkInDate, deposit, price);
+
+            var response = await HttpClient.PostAsJsonAsync("api/PackageBookings", BookingService.ReturnBooking());
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/packages/PackageBookingConfirmation");
+                BookingService.ClearBooking();
+            }
         }
     }
 }

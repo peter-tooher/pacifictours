@@ -4,5 +4,6 @@
     {
         List<Hotel> Hotels { get; set; }
         Task GetHotels();
+        Task<ServiceResponse<Hotel>> GetHotelById(int hotelId);
     }
 }

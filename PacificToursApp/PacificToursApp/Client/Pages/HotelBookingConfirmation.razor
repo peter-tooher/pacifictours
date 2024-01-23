@@ -1,0 +1,132 @@
+﻿@page "/HotelBookingConfirmation"
+@using System.Security.Claims
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (hotelBookings == null)
+{
+    <span>Loading bookings...</span>
+}
+else
+{
+    foreach (var booking in hotelBookings)
+    {
+        <div>
+            <h2>Booking Confirmation</h2>
+            <p>The remaining amount needs to be paid 28 days before the commencement of the booking, otherwise the deposit is forfeited.</p>
+            <p>Bookings can be modified up to 14 days before the booking subject to a 5% surcharge and assuming changes can be accommodated.</p>
+            <p>Cancellations may be made 5 days prior to the booking and a full refund will be returned. If it is made within 5 days, a refund will be returned subject to a £50 charge.</p>
+            <p><strong>Booking ID:</strong> @booking.BookingId</p>
+            <p><strong>User ID:</strong> @booking.UserId</p>
+            <p><strong>Hotel ID:</strong> @booking.HotelId</p>
+            <p><strong>Hotel Name:</strong> @booking.HotelName</p>
+            <p><strong>Suite Option:</strong> @booking.SuiteOption</p>
+            <p><strong>Check In Date:</strong> @booking.CheckIn.ToShortDateString()</p>
+            <p><strong>Check Out Date:</strong> @booking.CheckOut.ToShortDateString()</p>
+            <p><strong>Deposit:</strong> @booking.Deposit</p>
+            <p><strong>Price:</strong> @booking.Price</p>
+            <p><strong>Payment Due Date:</strong> @booking.PaymentDue.ToShortDateString()</p>
+            <p><strong>Payment Made:</strong> @booking.Paid</p>
+            <input type="date" @bind="booking.CheckIn" min="@DateTime.Now.ToShortDateString()" max="@booking.CheckOut.ToShortDateString()" />
+            <input type="date" @bind="booking.CheckOut" min="@booking.CheckIn.ToShortDateString()" max="@DateTime.Now.AddYears(1).ToShortDateString()" />
+            <button @onclick="() => ModifyBooking(booking.BookingId)">Modify Booking
+                @if (!string.IsNullOrEmpty(ModifyBookingMessage))
+                {
+                    <p>@ModifyBookingMessage</p>
+                }
+            </button>
+            <button @onclick="() => PayRemainingFee(booking.BookingId)">Pay Now
+                @if (!string.IsNullOrEmpty(PayRemainingFeeMessage))
+                {
+                    <p>@PayRemainingFeeMessage</p>
+                }
+            </button>
+            <button @onclick="() => CancelBooking(booking.BookingId)">Cancel Booking
+                @if (!string.IsNullOrEmpty(CancelBookingMessage))
+                {
+                    <p>@CancelBookingMessage</p>
+                }
+            </button>
+        </div>
+    }
+}
+
+@code {
+    private string ModifyBookingMessage = string.Empty;
+    private string PayRemainingFeeMessage = string.Empty;
+    private string CancelBookingMessage = string.Empty;
+
+    private List<HotelBookings> hotelBookings;
+
+    int userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = int.Parse(user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value);
+
+        if (userId != 0)
+        {
+            hotelBookings = await HttpClient.GetFromJsonAsync<List<HotelBookings>>($"api/Bookings/{userId}");
+        }
+    }
+
+    private async Task ModifyBooking(int bookingId)
+    {
+        var booking = hotelBookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking != null)
+        {
+            var bookings = await HttpClient.GetFromJsonAsync<List<HotelBookings>>($"api/Bookings/{booking.HotelId}/{booking.SuiteOption}");
+            if (bookings.Count(b => b.CheckIn < booking.CheckOut && b.CheckOut > booking.CheckIn) >= 20)
+            {
+                ModifyBookingMessage = "The selected suite is booked for the chosen dates. Please select another date.";
+                return;
+            }
+
+            var response = await HttpClient.PutAsJsonAsync($"api/Bookings/{bookingId}", booking);
+            if (response.IsSuccessStatusCode)
+            {
+                hotelBookings = await HttpClient.GetFromJsonAsync<List<HotelBookings>>($"api/Bookings/{booking.UserId}");
+            }
+            else
+            {
+                ModifyBookingMessage = "Oops! Something went wrong. Try again.";
+            }
+        }
+    }
+
+    private async Task PayRemainingFee(int bookingId)
+    {
+        var response = await HttpClient.PostAsJsonAsync($"api/Bookings/Pay/{bookingId}", bookingId);
+        if (response.IsSuccessStatusCode)
+        {
+            PayRemainingFeeMessage = "Payment successful.";
+            var booking = hotelBookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking != null)
+            {
+                booking.Paid = true;
+            }
+            hotelBookings = await HttpClient.GetFromJsonAsync<List<HotelBookings>>($"api/Bookings/{userId}");
+        }
+        else
+        {
+            PayRemainingFeeMessage = "Oops! Something went wrong. Try again.";
+        }
+    }
+
+    private async Task CancelBooking(int bookingId)
+    {
+        var response = await HttpClient.DeleteAsync($"api/Bookings/{bookingId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var refundAmount = await response.Content.ReadFromJsonAsync<decimal>();
+            CancelBookingMessage = ($"Booking cancelled successfully. Refund amount: £{refundAmount}");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            CancelBookingMessage= ($"Failed to cancel booking. Try again.");
+        }
+    }
+}

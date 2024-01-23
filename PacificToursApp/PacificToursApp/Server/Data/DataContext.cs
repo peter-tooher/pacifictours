@@ -22,6 +22,7 @@ namespace PacificToursApp.Server.Data
                 TourImageUrl = "https://www.thewowstyle.com/wp-content/uploads/2015/02/1653100london.jpg",
                 TourLength = 6,
                 TourPrice = 1200.00m,
+                TourSpacesAvailable = 30
             },
             new Tour
             {
@@ -31,6 +32,7 @@ namespace PacificToursApp.Server.Data
                 TourImageUrl = "https://static.standard.co.uk/s3fs-public/thumbnails/image/2017/07/10/10/shutterstock-521968378.jpg?crop=8:5,smart&quality=75&auto=webp&width=1024",
                 TourLength = 16,
                 TourPrice = 2000.00m,
+                TourSpacesAvailable = 40
             },
             new Tour
             {
@@ -40,6 +42,7 @@ namespace PacificToursApp.Server.Data
                 TourImageUrl = "https://www.english-heritage.org.uk/siteassets/home/visit/places-to-visit/stonehenge/history/stonehenge-aerial-1440x612.jpg?w=1440&h=612&mode=crop&scale=both&quality=100&anchor=NoFocus&WebsiteVersion=20231208103628",
                 TourLength = 12,
                 TourPrice = 2900.00m,
+                TourSpacesAvailable = 30
             }
             );
 
@@ -128,10 +131,42 @@ namespace PacificToursApp.Server.Data
                 .WithMany()
                 .HasForeignKey(hb => hb.HotelId);
 
+            modelBuilder.Entity<TourBookings>()
+            .HasKey(tb => tb.BookingId);
+
+            modelBuilder.Entity<TourBookings>()
+                .HasOne(tb => tb.user)
+                .WithMany()
+                .HasForeignKey(tb => tb.UserId);
+
+            modelBuilder.Entity<TourBookings>()
+                .HasOne(tb => tb.tour)
+                .WithMany()
+                .HasForeignKey(tb => tb.TourId);
+
+            modelBuilder.Entity<PackageBookings>()
+            .HasKey(pb => pb.BookingId);
+
+            modelBuilder.Entity<PackageBookings>()
+                .HasOne(pb => pb.user)
+                .WithMany()
+                .HasForeignKey(pb => pb.UserId);
+
+            modelBuilder.Entity<PackageBookings>()
+                .HasOne(pb => pb.tour)
+                .WithMany()
+                .HasForeignKey(pb => pb.TourId);
+
+            modelBuilder.Entity<PackageBookings>()
+                .HasOne(pb => pb.hotel)
+                .WithMany()
+                .HasForeignKey(pb => pb.HotelId);
         }
         public DbSet<Tour> Tours { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<HotelBookings> HotelBookings { get; set; }
+        public DbSet<TourBookings> TourBookings { get; set; }
+        public DbSet<PackageBookings> PackageBookings { get; set; }
     }
 }

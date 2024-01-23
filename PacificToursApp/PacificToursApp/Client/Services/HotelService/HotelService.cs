@@ -1,4 +1,5 @@
-﻿using PacificToursApp.Shared;
+﻿using PacificToursApp.Client.Pages;
+using PacificToursApp.Shared;
 
 namespace PacificToursApp.Client.Services.HotelService
 {
@@ -11,6 +12,11 @@ namespace PacificToursApp.Client.Services.HotelService
         }
 
         public List<Hotel> Hotels { get; set; } = new List<Hotel>();
+        public async Task<ServiceResponse<Hotel>> GetHotelById(int hotelId)
+        {
+            var result = await _http.GetFromJsonAsync<ServiceResponse<Hotel>>($"api/hotel/{hotelId}");
+            return result;
+        }
 
         public async Task GetHotels()
         {
