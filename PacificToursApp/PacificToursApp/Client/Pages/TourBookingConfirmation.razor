@@ -1,4 +1,4 @@
-﻿ @page "/TourBookingConfirmation"
+﻿@page "/TourBookingConfirmation"
 @using System.Security.Claims
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -52,6 +52,7 @@ else
 }
 
 @code {
+    // Define the parameters, properties, and methods for this component.
     private string ModifyBookingMessage = string.Empty;
     private string PayRemainingFeeMessage = string.Empty;
     private string CancelBookingMessage = string.Empty;
@@ -60,6 +61,7 @@ else
 
     int userId;
 
+    // When the component is initialized, get the user's bookings.
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -72,8 +74,11 @@ else
         }
     }
 
+    // When the modify booking button is clicked, modify the booking.
     private async Task ModifyBooking(int bookingId)
     {
+        // Defines the logic for modifying the booking.
+        // This includes checking the availability, calculating the price, and making a PUT request to the API.
         var booking = tourBookings.FirstOrDefault(b => b.BookingId == bookingId);
         if (booking != null)
         {
@@ -91,8 +96,11 @@ else
         }
     }
 
+    // When the pay now button is clicked, pay the remaining fee.
     private async Task PayRemainingFee(int bookingId)
     {
+        // Define the logic for paying the remaining fee.
+        // This includes making a POST request to the API and updating the booking.
         var response = await HttpClient.PostAsJsonAsync($"api/TourBookings/Pay/{bookingId}", bookingId);
         if (response.IsSuccessStatusCode)
         {
@@ -110,8 +118,11 @@ else
         }
     }
 
+    // When the cancel booking button is clicked, cancel the booking.
     private async Task CancelBooking(int bookingId)
     {
+        // Define the logic for cancelling the booking.
+        // This includes making a DELETE request to the API and updating the booking.
         var response = await HttpClient.DeleteAsync($"api/TourBookings/{bookingId}");
         if (response.IsSuccessStatusCode)
         {

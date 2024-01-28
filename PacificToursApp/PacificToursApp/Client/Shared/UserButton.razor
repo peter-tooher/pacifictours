@@ -28,28 +28,37 @@
 </div>
 
 @code {
+    // A flag to control the visibility of the user menu
     private bool showUserMenu = false;
 
+    // A computed property that returns the appropriate CSS class based on the visibility of the user menu
     private string UserMenuCssClass => showUserMenu ? "show-menu" : null;
 
+    // A method to toggle the visibility of the user menu
     private void ToggleUserMenu()
     {
         showUserMenu = !showUserMenu;
     }
 
+    // A method to hide the user menu after a delay
     private async Task HideUserMenu()
     {
         await Task.Delay(200);
         showUserMenu = false;
     }
 
+    // A method to log out the user
     private async Task Logout()
     {
+        // Remove the authentication token from local storage
         await LocalStorage.RemoveItemAsync("authToken");
+        // Update the authentication state
         await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // Navigate to the home page
         NavigationManager.NavigateTo("");
     }
             
+    // Methods to navigate to different booking confirmation pages
     private void GoToTourBookings()
     {
         NavigationManager.NavigateTo("/TourBookingConfirmation");

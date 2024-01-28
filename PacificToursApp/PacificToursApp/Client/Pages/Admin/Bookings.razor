@@ -1,6 +1,158 @@
 ﻿@page "/admin/bookings"
 @attribute [Authorize(Roles = "Admin")]
+@inject HttpClient HttpClient
+
+@if (packageBookings == null)
+{
+    <p>Loading Packages...</p>
+}
+else
+{
+    <h2 class="mb-3">Package Bookings</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>User ID</th>
+                <th>Tour ID</th>
+                <th>Tour Name</th>
+                <th>Tour Check In Date</th>
+                <th>Tour Deposit</th>
+                <th>Tour Price</th>
+                <th>Tour Payment Due</th>
+                <th>Hotel ID</th>
+                <th>Hotel Name</th>
+                <th>Suite Option</th>
+                <th>Hotel Check In Date</th>
+                <th>Hotel Check Out Date</th>
+                <th>Hotel Deposit</th>
+                <th>Hotel Price</th>
+                <th>Hotel Payment Due</th>
+                <th>Total Price</th>
+                <th>Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var packageBooking in packageBookings)
+            {
+                <tr>
+                    <td>@packageBooking.BookingId</td>
+                    <td>@packageBooking.UserId</td>
+                    <td>@packageBooking.TourId</td>
+                    <td>@packageBooking.TourName</td>
+                    <td>@packageBooking.TourCheckIn.ToShortDateString()</td>
+                    <td>@packageBooking.TourDeposit</td>
+                    <td>@packageBooking.TourPrice</td>
+                    <td>@packageBooking.TourPaymentDue.ToShortDateString()</td>
+                    <td>@packageBooking.HotelId</td>
+                    <td>@packageBooking.HotelName</td>
+                    <td>@packageBooking.SuiteOption</td>
+                    <td>@packageBooking.HotelCheckIn.ToShortDateString()</td>
+                    <td>@packageBooking.HotelCheckOut.ToShortDateString()</td>
+                    <td>@packageBooking.HotelDeposit</td>
+                    <td>@packageBooking.HotelPrice</td>
+                    <td>@packageBooking.HotelPaymentDue.ToShortDateString()</td>
+                    <td>@packageBooking.TotalPrice</td>
+                    <td>@packageBooking.Paid</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (hotelBookings == null)
+{
+    <p>Loading Hotels...</p>
+}
+else
+{
+    <h2 class="mb-3">Hotel Bookings</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>User ID</th>
+                <th>Hotel ID</th>
+                <th>Hotel Name</th>
+                <th>Suite Option</th>
+                <th>Check In Date</th>
+                <th>Check Out Date</th>
+                <th>Deposit</th>
+                <th>Price</th>
+                <th>Payment Due Date</th>
+                <th>Payment Made</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hotelBooking in hotelBookings)
+            {
+                <tr>
+                    <td>@hotelBooking.BookingId</td>
+                    <td>@hotelBooking.UserId</td>
+                    <td>@hotelBooking.HotelId</td>
+                    <td>@hotelBooking.HotelName</td>
+                    <td>@hotelBooking.SuiteOption</td>
+                    <td>@hotelBooking.CheckIn.ToShortDateString()</td>
+                    <td>@hotelBooking.CheckOut.ToShortDateString()</td>
+                    <td>@hotelBooking.Deposit</td>
+                    <td>@hotelBooking.Price</td>
+                    <td>@hotelBooking.PaymentDue.ToShortDateString()</td>
+                    <td>@hotelBooking.Paid</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (tourBookings == null)
+{
+    <p>Loading Tours...</p>
+}
+else
+{
+    <h2 class="mb-3">Tour Bookings</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>User ID</th>
+                <th>Tour ID</th>
+                <th>Tour Name</th>
+                <th>Check In Date</th>
+                <th>Deposit</th>
+                <th>Price</th>
+                <th>Payment Due Date</th>
+                <th>Payment Made</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tourBooking in tourBookings)
+            {
+                <tr>
+                    <td>@tourBooking.BookingId</td>
+                    <td>@tourBooking.UserId</td>
+                    <td>@tourBooking.TourId</td>
+                    <td>@tourBooking.TourName</td>
+                    <td>@tourBooking.CheckIn.ToShortDateString()</td>
+                    <td>@tourBooking.Deposit</td>
+                    <td>@tourBooking.Price</td>
+                    <td>@tourBooking.PaymentDue.ToShortDateString()</td>
+                    <td>@tourBooking.Paid</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private IEnumerable<PackageBookings> packageBookings;
+    private IEnumerable<HotelBookings> hotelBookings;
+    private IEnumerable<TourBookings> tourBookings;
 
+    protected override async Task OnInitializedAsync()
+    {
+        packageBookings = await HttpClient.GetFromJsonAsync<IEnumerable<PackageBookings>>("api/PackageBookings/GetAllPackageBookings");
+        hotelBookings = await HttpClient.GetFromJsonAsync<IEnumerable<HotelBookings>>("api/Bookings/GetAllHotelBookings");
+        tourBookings = await HttpClient.GetFromJsonAsync<IEnumerable<TourBookings>>("api/TourBookings/GetAllTourBookings");
+    }
 }

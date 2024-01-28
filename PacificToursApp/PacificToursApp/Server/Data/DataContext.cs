@@ -4,15 +4,19 @@ using System.Net.Http.Headers;
 
 namespace PacificToursApp.Server.Data
 {
+    // The DataContext class is a DbContext instance used to interact with the database.
     public class DataContext : DbContext
     {
+        // The DataContext constructor takes a DbContextOptions<DataContext> instance and passes it to the base DbContext class.
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
 
         }
 
+        // The OnModelCreating method is overridden to configure the model that was discovered by convention from the entity types exposed in DbSet properties on your derived context.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Seeding the Tour table with data.
             modelBuilder.Entity<Tour>().HasData(
             new Tour
             {
@@ -46,6 +50,7 @@ namespace PacificToursApp.Server.Data
             }
             );
 
+            // Seeding the Hotel table with data.
             modelBuilder.Entity<Hotel>().HasData(
             new Hotel
             {
@@ -109,64 +114,90 @@ namespace PacificToursApp.Server.Data
                 FamilySuitePrice = 155.00m,
             }
         );
+            // Configuring the Tour entity:
             modelBuilder.Entity<Tour>()
+            // Setting TourId as the primary key for the Tour entity.
             .HasKey(t => t.TourId);
 
+            // Configuring the Hotel entity:
             modelBuilder.Entity<Hotel>()
+            // Setting HotelId as the primary key for the Hotel entity.
             .HasKey(h => h.HotelId);
 
+            // Configuring the User entity:
             modelBuilder.Entity<User>()
+            // Setting UserId as the primary key for the User entity.
             .HasKey(u => u.UserId);
 
+            // Configuring the HotelBookings entity:
             modelBuilder.Entity<HotelBookings>()
+            // Setting BookingId as the primary key for the HotelBookings entity.
             .HasKey(hb => hb.BookingId);
 
             modelBuilder.Entity<HotelBookings>()
+                // Defining a one-to-many relationship between User and HotelBookings entities.
                 .HasOne(hb => hb.user)
                 .WithMany()
                 .HasForeignKey(hb => hb.UserId);
 
             modelBuilder.Entity<HotelBookings>()
+                // Defining a one-to-many relationship between Hotel and HotelBookings entities.
                 .HasOne(hb => hb.hotel)
                 .WithMany()
                 .HasForeignKey(hb => hb.HotelId);
 
+
+            // Configuring the TourBookings entity:
             modelBuilder.Entity<TourBookings>()
+            // Setting BookingId as the primary key for the TourBookings entity.
             .HasKey(tb => tb.BookingId);
 
             modelBuilder.Entity<TourBookings>()
+                // Defining a one-to-many relationship between User and TourBookings entities.
                 .HasOne(tb => tb.user)
                 .WithMany()
                 .HasForeignKey(tb => tb.UserId);
 
             modelBuilder.Entity<TourBookings>()
+                // Defining a one-to-many relationship between Tour and TourBookings entities.
                 .HasOne(tb => tb.tour)
                 .WithMany()
                 .HasForeignKey(tb => tb.TourId);
 
+            // Configuring the PackageBookings entity:
             modelBuilder.Entity<PackageBookings>()
+            // Setting BookingId as the primary key for the PackageBookings entity.
             .HasKey(pb => pb.BookingId);
 
             modelBuilder.Entity<PackageBookings>()
+                // Defining a one-to-many relationship between User and PackageBookings entities.
                 .HasOne(pb => pb.user)
                 .WithMany()
                 .HasForeignKey(pb => pb.UserId);
 
             modelBuilder.Entity<PackageBookings>()
+                // Defining a one-to-many relationship between Tour and PackageBookings entities.
                 .HasOne(pb => pb.tour)
                 .WithMany()
                 .HasForeignKey(pb => pb.TourId);
 
             modelBuilder.Entity<PackageBookings>()
+                // Defining a one-to-many relationship between Hotel and PackageBookings entities.
                 .HasOne(pb => pb.hotel)
                 .WithMany()
                 .HasForeignKey(pb => pb.HotelId);
         }
+        // The Tours property is a DbSet representing the Tours table in the database.
         public DbSet<Tour> Tours { get; set; }
+        // The Hotels property is a DbSet representing the Hotels table in the database.
         public DbSet<Hotel> Hotels { get; set; }
+        // The Users property is a DbSet representing the Users table in the database.
         public DbSet<User> Users { get; set; }
+        // The HotelBookings property is a DbSet representing the HotelBookings table in the database.
         public DbSet<HotelBookings> HotelBookings { get; set; }
+        // The TourBookings property is a DbSet representing the TourBookings table in the database.
         public DbSet<TourBookings> TourBookings { get; set; }
+        // The PackageBookings property is a DbSet representing the PackageBookings table in the databa
         public DbSet<PackageBookings> PackageBookings { get; set; }
     }
 }

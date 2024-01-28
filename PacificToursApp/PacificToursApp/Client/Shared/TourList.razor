@@ -6,31 +6,32 @@
 }
 else
 {
-<ul class="list-unstyled">
-    @foreach (var tour in TourService.Tours)
-    {
-        <li class="media my-3">
-            <div class="media-img-wrapper mr-2">
+    <ul class="list-unstyled">
+        @foreach (var tour in TourService.Tours)
+        {
+            <li class="media my-3">
+                <div class="media-img-wrapper mr-2">
                     <a href="/tours/@tour.TourId">
-                    <img class="media-img" src="@tour.TourImageUrl" alt="@tour.TourName" />
-                </a>
-            </div>
-            <div class="media-body">
+                        <img class="media-img" src="@tour.TourImageUrl" alt="@tour.TourName" />
+                    </a>
+                </div>
+                <div class="media-body">
                     <a href="/tours/@tour.TourId">
-                    <h4 class="mt-0">@tour.TourName</h4>
-                </a>
-                <p>@tour.TourDescription</p>
-                <p> <strong>Length:</strong> @tour.TourLength days </p>
-                <p> <strong>Price:</strong> £@tour.TourPrice </p>
-            </div>
-        </li>
+                        <h4 class="mt-0">@tour.TourName</h4>
+                    </a>
+                    <p>@tour.TourDescription</p>
+                    <p> <strong>Length:</strong> @tour.TourLength days </p>
+                    <p> <strong>Price:</strong> £@tour.TourPrice </p>
+                </div>
+            </li>
         }
-</ul>
+    </ul>
 }
 
 @code {
+    // When the component is initialized, the GetTours method is called to populate the Tours list
     protected override async Task OnInitializedAsync()
     {
-       await TourService.GetTours();
+        await TourService.GetTours();
     }
 }

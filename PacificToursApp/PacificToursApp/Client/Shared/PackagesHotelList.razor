@@ -30,8 +30,7 @@ else
 }
 
 @code {
-    private static List<Hotel> Hotels = new List<Hotel>();
-
+    // When the component is initialized, the GetHotels method is called to populate the Hotels list
     protected override async Task OnInitializedAsync()
     {
         await HotelService.GetHotels();

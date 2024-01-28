@@ -1,19 +1,28 @@
-﻿<CascadingAuthenticationState>
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-            <NotAuthorized>
-                <h3>Whoops! You're not allowed to see this page.</h3>
-                <h5>Please <a href="login">login</a> or <a href="register">register</a> for a new account.</h5>
-            </NotAuthorized>
-        </AuthorizeRouteView>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿<!-- The CascadingAuthenticationState component provides a cascading parameter of type Task<AuthenticationState> -->
+<CascadingAuthenticationState>
+    <!-- The Router component is responsible for rendering a set of components that match the current browser's URL -->
+    <Router AppAssembly="@typeof(App).Assembly">
+        <!-- The Found component is displayed when the router finds a match for the current URL -->
+        <Found Context="routeData">
+            <!-- The AuthorizeRouteView component is used to display different content depending on the user's authorization status -->
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <!-- The NotAuthorized content is displayed when the user is not authorized -->
+                <NotAuthorized>
+                    <h3>Whoops! You're not allowed to see this page.</h3>
+                    <h5>Please <a href="login">login</a> or <a href="register">register</a> for a new account.</h5>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <!-- The FocusOnNavigate component sets the focus to the specified element when the route changes -->
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <!-- The NotFound component is displayed when the router does not find a match for the current URL -->
+        <NotFound>
+            <!-- The PageTitle component sets the title of the page -->
+            <PageTitle>Not found</PageTitle>
+            <!-- The LayoutView component is used to specify a layout for the content -->
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
 </CascadingAuthenticationState>

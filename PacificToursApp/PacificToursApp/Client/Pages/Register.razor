@@ -52,11 +52,16 @@
 </EditForm>
 
 @code {
+    // Define the UserRegister object that is used as the model for the form.
     UserRegister user = new UserRegister();
 
+    // Define a string to hold the message that indicates the result of the registration.
     string message = string.Empty;
     string messageCssClass = string.Empty;
 
+
+    // Define the method that handles the form submission.
+    // This method calls the Register method of the AuthService and updates the message based on the result.
     async Task HandleRegistration() 
     {
         var result = await AuthService.Register(user);

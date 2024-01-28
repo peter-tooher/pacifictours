@@ -31,10 +31,13 @@
 </div>
 
 @code {
+    // A flag to control whether the navigation menu is collapsed or expanded
     private bool collapseNavMenu = true;
 
+    // A computed property that returns the appropriate CSS class based on whether the navigation menu is collapsed or expanded
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+    // A method to toggle the state of the navigation menu
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;

@@ -29,6 +29,7 @@ else
 }
 
 @code {
+    // When the component is initialized, the GetTours method is called to populate the Tours list
     protected override async Task OnInitializedAsync()
     {
         await TourService.GetTours();

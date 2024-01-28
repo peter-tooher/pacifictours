@@ -1,21 +1,32 @@
 ﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 @using System.Security.Claims
 
 @if(authorized)
 {
-    <a class ="dropdown-item" href="admin/bookings">Bookings</a>
+    <button class="dropdown-item" @onclick="GoToAdminBookings">Bookings</button>
 }
 
 @code {
+    // A flag to indicate whether the user is authorized
     bool authorized = false;
 
+    // When the component is initialized, check the user's role to determine if they are authorized
     protected override async Task OnInitializedAsync()
     {
+        // Get the user's role from their claims
         string role = (await AuthenticationStateProvider.GetAuthenticationStateAsync())
         .User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        // If the user's role contains "Admin", they are authorized
         if (role.Contains("Admin"))
         {
             authorized = true;
         }
+    }
+    
+    // A method to navigate to the admin bookings page
+    private void GoToAdminBookings()
+    {
+        NavigationManager.NavigateTo("admin/bookings");
     }
 }

@@ -37,6 +37,7 @@ else
 }
 
 @code {
+    // Define the parameters, properties, and methods for this component
     [Parameter]
     public int Id { get; set; }
     private Tour tour = null;
@@ -46,6 +47,7 @@ else
 
     bool isLoggedIn = false;
 
+    // When the parameters are set, get the tour details and check if the user is logged in
     protected override async Task OnParametersSetAsync()
     {
         await TourService.GetTours();
@@ -64,18 +66,21 @@ else
         isLoggedIn = authState.User.Identity.IsAuthenticated;
     }
 
-    
+    // When the booking button is clicked, confirm the booking
     private async void ConfirmTourBooking()
     {
+        // Get the user's authentication state
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
+        // Calculate the price, deposit, and remaining balance
         decimal price = tour.TourPrice;
         decimal totalPrice = tour.TourPrice;
         decimal deposit = totalPrice * 0.2m;
         decimal remainingBalance = totalPrice - deposit;
         paymentDueDate = checkInDate.AddDays(-28);
 
+        // Check if there are available spaces for the tour on the selected date
         var bookingsOnDate = await HttpClient.GetFromJsonAsync<List<TourBookings>>($"api/TourBookings/ByTourAndDate/{tour.TourId}/{checkInDate:yyyy-MM-dd}");
         int maxSpaces = (tour.TourName == "Real Britain" || tour.TourName == "Best of Britain") ? 30 : 40;
 
@@ -85,12 +90,14 @@ else
             return;
         }
 
+        // Check if the selected date is at least 29 days in the future
         if (checkInDate < DateTime.Now.AddDays(29))
         {
             message = "You can only book a tour that is 29 days in the future or more.";
             return;
         }
 
+        // Create a new booking
         var booking = new TourBookings
             {
                 UserId = int.Parse(authState.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value),
@@ -103,8 +110,10 @@ else
                 Paid = false,
         };
 
+        // Make a POST request to the API to create the booking
         var response = await HttpClient.PostAsJsonAsync("api/TourBookings", booking);
 
+        // If the booking was successful, navigate to the confirmation page
         if (response.IsSuccessStatusCode)
         {
             NavigationManager.NavigateTo($"/TourBookingConfirmation/");

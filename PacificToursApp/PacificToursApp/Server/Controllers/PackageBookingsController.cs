@@ -5,17 +5,28 @@ using PacificToursApp.Server.Data;
 
 namespace PacificToursApp.Server.Controllers
 {
+    // The PackageBookingsController class is a controller for managing package bookings. It inherits from ControllerBase.
     [Route("api/[controller]")]
     [ApiController]
     public class PackageBookingsController : ControllerBase
     {
+        // The _context field is a DataContext instance used to interact with the database.
         private readonly DataContext _context;
 
+        // The PackageBookingsController constructor takes a DataContext instance and assigns it to the _context field.
         public PackageBookingsController(DataContext context)
         {
             _context = context;
         }
 
+        // The GetAllPackageBookings method retrieves all package bookings.
+        [HttpGet("GetAllPackageBookings")]
+        public async Task<ActionResult<IEnumerable<PackageBookings>>> GetAllPackageBookings()
+        {
+            return await _context.PackageBookings.ToListAsync();
+        }
+
+        // The PostPackageBooking method creates a new package booking.
         [HttpPost]
         public async Task<ActionResult<PackageBookings>> PostPackageBooking(PackageBookings packageBooking)
         {
@@ -25,6 +36,7 @@ namespace PacificToursApp.Server.Controllers
             return CreatedAtAction("GetPackageBooking", new { id = packageBooking.BookingId }, packageBooking);
         }
 
+        // The GetPackageBooking method retrieves a package booking by its ID.
         [HttpGet("{id}")]
         public async Task<ActionResult<PackageBookings>> GetPackageBooking(int id)
         {
@@ -38,6 +50,7 @@ namespace PacificToursApp.Server.Controllers
             return packageBooking;
         }
 
+        // The GetPackageBookingsByUser method retrieves package bookings by user.
         [HttpGet("ByUser/{userId}")]
         public async Task<ActionResult<IEnumerable<PackageBookings>>> GetPackageBookingsByUser(int userId)
         {
@@ -51,6 +64,7 @@ namespace PacificToursApp.Server.Controllers
             return packageBookings;
         }
 
+        // The Pay method marks a package booking as paid.
         [HttpPost("Pay/{id}")]
         public ActionResult Pay(int id)
         {
@@ -75,6 +89,7 @@ namespace PacificToursApp.Server.Controllers
             return Ok("Payment successful.");
         }
 
+        // The CancelPackageBooking method cancels a package booking.
         [HttpDelete("{id}")]
         public async Task<ActionResult<decimal>> CancelPackageBooking(int id)
         {
@@ -94,6 +109,7 @@ namespace PacificToursApp.Server.Controllers
             return refund;
         }
 
+        // The ModifyPackageBooking method modifies a package booking.
         [HttpPut("{id}")]
         public ActionResult ModifyPackageBooking(int id, [FromBody] PackageBookings modifiedBooking)
         {
@@ -135,11 +151,13 @@ namespace PacificToursApp.Server.Controllers
             return Ok("Package booking modified successfully.");
         }
 
+        // The CalculateTourPaymentDueDate method calculates the payment due date for a tour.
         private DateTime CalculateTourPaymentDueDate(DateTime tourCheckIn)
         {
             return tourCheckIn.AddDays(-28);
         }
 
+        // The CalculateHotelPaymentDueDate method calculates the payment due date for a hotel.
         private DateTime CalculateHotelPaymentDueDate(DateTime hotelCheckIn)
         {
             return hotelCheckIn.AddDays(-28);
